@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/cloudfoundry/cli/plugin"
-	"github.com/jfmyers9/v3_cli_plugin/commands"
+	"github.com/jfmyers9/v3_cli_plugin/commands/apps"
 )
 
 const (
