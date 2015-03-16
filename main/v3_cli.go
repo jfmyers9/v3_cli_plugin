@@ -1,13 +1,14 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/cloudfoundry/cli/plugin"
 	"github.com/jfmyers9/v3_cli_plugin/commands"
+	"github.com/jfmyers9/v3_cli_plugin/utils"
 )
+
+const createAppString = "create-v3-app"
 
 type V3Cli struct{}
 
@@ -16,10 +17,10 @@ func (c *V3Cli) GetMetadata() plugin.PluginMetadata {
 		Name: "V3Cli",
 		Commands: []plugin.Command{
 			{
-				Name:     "create-v3-app",
+				Name:     createAppString,
 				HelpText: "This command creates a v3 app.",
 				UsageDetails: plugin.Usage{
-					Usage: "cf create-app app-name",
+					Usage: fmt.Sprintf("cf %s app-name", createAppString),
 				},
 			},
 		},
@@ -31,43 +32,33 @@ func main() {
 }
 
 func (c *V3Cli) Run(cliConnection plugin.CliConnection, args []string) {
-	if args[0] == "create-v3-app" {
+	if args[0] == createAppString && len(args) == 2 {
 		appName := args[1]
-		spaceGuid, err := getTargetSpaceGuid(cliConnection)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		createCommand := commands.CreateAppCommand{
-			AppName:       appName,
-			SpaceGuid:     spaceGuid,
-			CliConnection: cliConnection,
-		}
-		createCommand.Perform()
+		c.createApp(cliConnection, appName)
+	} else {
+		c.showUsage(args)
 	}
 }
 
-func getTargetSpaceGuid(cliConnection plugin.CliConnection) (string, error) {
-	output, err := cliConnection.CliCommandWithoutTerminalOutput("target")
+func (c *V3Cli) showUsage(args []string) {
+	for _, cmd := range c.GetMetadata().Commands {
+		if cmd.Name == args[0] {
+			fmt.Println(fmt.Sprintf("Usage: %s", cmd.UsageDetails.Usage))
+		}
+	}
+}
+
+func (c *V3Cli) createApp(cliConnection plugin.CliConnection, appName string) {
+	spaceGuid, err := utils.GetTargetSpaceGuid(cliConnection)
 	if err != nil {
-		return "", err
+		fmt.Println(err)
+		return
 	}
 
-	if len(output) < 5 {
-		return "", errors.New("Space not targeted.")
+	createCommand := commands.CreateAppCommand{
+		AppName:       appName,
+		SpaceGuid:     spaceGuid,
+		CliConnection: cliConnection,
 	}
-
-	if !strings.HasPrefix(output[4], "Space:") || strings.Contains(output[4], "No space targeted") {
-		return "", errors.New("Space not targeted.")
-	}
-
-	spaceName := strings.TrimSpace(strings.TrimPrefix(output[4], "Space:"))
-
-	spaceGuid, err := cliConnection.CliCommandWithoutTerminalOutput("space", spaceName, "--guid")
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(spaceGuid[0]), nil
+	createCommand.Perform()
 }
