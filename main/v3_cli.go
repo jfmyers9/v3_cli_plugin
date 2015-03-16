@@ -6,11 +6,13 @@ import (
 
 	"github.com/cloudfoundry/cli/plugin"
 	"github.com/jfmyers9/v3_cli_plugin/commands"
-	"github.com/jfmyers9/v3_cli_plugin/utils"
 )
 
-const createAppString = "create-v3-app"
-const deleteAppString = "delete-v3-app"
+const (
+	createAppString = "create-v3-app"
+	deleteAppString = "delete-v3-app"
+	getAppString    = "v3-app"
+)
 
 type V3Cli struct{}
 
@@ -30,6 +32,13 @@ func (c *V3Cli) GetMetadata() plugin.PluginMetadata {
 				HelpText: "This command deletes a v3 app.",
 				UsageDetails: plugin.Usage{
 					Usage: fmt.Sprintf("cf %s [-f] app-name", deleteAppString),
+				},
+			},
+			{
+				Name:     getAppString,
+				HelpText: "This command retrieves information a v3 app.",
+				UsageDetails: plugin.Usage{
+					Usage: fmt.Sprintf("cf %s app-name", getAppString),
 				},
 			},
 		},
@@ -54,6 +63,9 @@ func (c *V3Cli) Run(cliConnection plugin.CliConnection, args []string) {
 			forceFlag = args[1]
 		}
 		c.deleteApp(cliConnection, forceFlag, appName)
+	} else if args[0] == getAppString && len(args) == 2 {
+		appName := args[1]
+		c.getApp(cliConnection, appName)
 	} else {
 		c.showUsage(args)
 	}
@@ -68,15 +80,8 @@ func (c *V3Cli) showUsage(args []string) {
 }
 
 func (c *V3Cli) createApp(cliConnection plugin.CliConnection, appName string) {
-	spaceGuid, err := utils.GetTargetSpaceGuid(cliConnection)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
 	createCommand := commands.CreateAppCommand{
 		AppName:       appName,
-		SpaceGuid:     spaceGuid,
 		CliConnection: cliConnection,
 	}
 	createCommand.Perform()
@@ -95,21 +100,17 @@ func (c *V3Cli) deleteApp(cliConnection plugin.CliConnection, forceFlag string, 
 		}
 	}
 
-	spaceGuid, err := utils.GetTargetSpaceGuid(cliConnection)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	appGuid, err := utils.GetAppGuid(cliConnection, appName, spaceGuid)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
 	deleteCommand := commands.DeleteAppCommand{
-		AppGuid:       appGuid,
+		AppName:       appName,
 		CliConnection: cliConnection,
 	}
 	deleteCommand.Perform()
+}
+
+func (c *V3Cli) getApp(cliConnection plugin.CliConnection, appName string) {
+	getCommand := commands.GetAppCommand{
+		AppName:       appName,
+		CliConnection: cliConnection,
+	}
+	getCommand.Perform()
 }
