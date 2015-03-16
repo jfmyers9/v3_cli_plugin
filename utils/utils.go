@@ -61,3 +61,24 @@ func (u *Utils) GetAppScopedToSpace(appName string) (resources.V3App, error) {
 	}
 	return response.Resources[0], nil
 }
+
+func (u *Utils) ListAppsScopedToSpace() ([]resources.V3App, error) {
+	spaceGuid, err := u.GetTargetSpaceGuid()
+	if err != nil {
+		return []resources.V3App{}, err
+	}
+
+	appPath := fmt.Sprintf("/v3/apps?space_guids[]=%s", spaceGuid)
+	output, err := u.CliConnection.CliCommandWithoutTerminalOutput("curl", appPath)
+	if err != nil {
+		return []resources.V3App{}, err
+	}
+
+	var response resources.V3AppResponse
+	err = json.Unmarshal([]byte(output[0]), &response)
+	if err != nil {
+		return []resources.V3App{}, err
+	}
+
+	return response.Resources, nil
+}

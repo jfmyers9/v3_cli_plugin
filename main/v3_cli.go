@@ -12,6 +12,7 @@ const (
 	createAppString = "create-v3-app"
 	deleteAppString = "delete-v3-app"
 	getAppString    = "v3-app"
+	listAppString   = "v3-apps"
 )
 
 type V3Cli struct{}
@@ -41,6 +42,13 @@ func (c *V3Cli) GetMetadata() plugin.PluginMetadata {
 					Usage: fmt.Sprintf("cf %s app-name", getAppString),
 				},
 			},
+			{
+				Name:     listAppString,
+				HelpText: "This command retrieves information v3 app in targeted space.",
+				UsageDetails: plugin.Usage{
+					Usage: fmt.Sprintf("cf %s app-name", listAppString),
+				},
+			},
 		},
 	}
 }
@@ -66,6 +74,8 @@ func (c *V3Cli) Run(cliConnection plugin.CliConnection, args []string) {
 	} else if args[0] == getAppString && len(args) == 2 {
 		appName := args[1]
 		c.getApp(cliConnection, appName)
+	} else if args[0] == listAppString && len(args) == 1 {
+		c.listApps(cliConnection)
 	} else {
 		c.showUsage(args)
 	}
@@ -113,4 +123,11 @@ func (c *V3Cli) getApp(cliConnection plugin.CliConnection, appName string) {
 		CliConnection: cliConnection,
 	}
 	getCommand.Perform()
+}
+
+func (c *V3Cli) listApps(cliConnection plugin.CliConnection) {
+	listCommand := commands.ListAppsCommand{
+		CliConnection: cliConnection,
+	}
+	listCommand.Perform()
 }
