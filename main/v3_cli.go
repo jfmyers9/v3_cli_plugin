@@ -95,7 +95,13 @@ func (c *V3Cli) deleteApp(cliConnection plugin.CliConnection, forceFlag string, 
 		}
 	}
 
-	appGuid, err := utils.GetAppGuid(cliConnection, appName)
+	spaceGuid, err := utils.GetTargetSpaceGuid(cliConnection)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	appGuid, err := utils.GetAppGuid(cliConnection, appName, spaceGuid)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

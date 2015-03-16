@@ -41,14 +41,21 @@ func GetTargetSpaceGuid(cliConnection plugin.CliConnection) (string, error) {
 	return strings.TrimSpace(spaceGuid[0]), nil
 }
 
-func GetAppGuid(cliConnection plugin.CliConnection, appName string) (string, error) {
-	appPath := fmt.Sprintf("/v3/apps?names[]=%s", appName)
+func GetAppGuid(cliConnection plugin.CliConnection, appName string, spaceGuid string) (string, error) {
+	appPath := fmt.Sprintf("/v3/apps?names[]=%s&space_guids[]=%s", appName, spaceGuid)
 	output, err := cliConnection.CliCommandWithoutTerminalOutput("curl", appPath)
 	if err != nil {
 		return "", err
 	}
 
 	var response V3AppResponse
-	json.Unmarshal([]byte(output[0]), &response)
+	err = json.Unmarshal([]byte(output[0]), &response)
+	if err != nil {
+		return "", err
+	}
+
+	if len(response.Resources) == 0 {
+		return "", errors.New("App Not Found")
+	}
 	return response.Resources[0].Guid, nil
 }
