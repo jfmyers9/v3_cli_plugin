@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	createAppString = "create-v3-app"
-	deleteAppString = "delete-v3-app"
-	getAppString    = "v3-app"
-	listAppString   = "v3-apps"
+	createAppString      = "create-v3-app"
+	deleteAppString      = "delete-v3-app"
+	getAppString         = "v3-app"
+	listAppString        = "v3-apps"
+	uploadProcfileString = "procfile"
 )
 
 type V3Cli struct{}
@@ -49,6 +50,13 @@ func (c *V3Cli) GetMetadata() plugin.PluginMetadata {
 					Usage: fmt.Sprintf("cf %s app-name", listAppString),
 				},
 			},
+			{
+				Name:     uploadProcfileString,
+				HelpText: "This command posts a procfile to create processes associated to the app.",
+				UsageDetails: plugin.Usage{
+					Usage: fmt.Sprintf("cf %s app-name path", uploadProcfileString),
+				},
+			},
 		},
 	}
 }
@@ -76,6 +84,10 @@ func (c *V3Cli) Run(cliConnection plugin.CliConnection, args []string) {
 		c.getApp(cliConnection, appName)
 	} else if args[0] == listAppString && len(args) == 1 {
 		c.listApps(cliConnection)
+	} else if args[0] == uploadProcfileString && len(args) == 3 {
+		appName := args[1]
+		procfilePath := args[2]
+		c.uploadProcfile(cliConnection, appName, procfilePath)
 	} else {
 		c.showUsage(args)
 	}
@@ -130,4 +142,13 @@ func (c *V3Cli) listApps(cliConnection plugin.CliConnection) {
 		CliConnection: cliConnection,
 	}
 	listCommand.Perform()
+}
+
+func (c *V3Cli) uploadProcfile(cliConnection plugin.CliConnection, appName string, procfilePath string) {
+	uploadCommand := commands.UploadProcfileCommand{
+		AppName:       appName,
+		ProcfilePath:  procfilePath,
+		CliConnection: cliConnection,
+	}
+	uploadCommand.Perform()
 }
