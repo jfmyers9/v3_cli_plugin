@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/cloudfoundry/cli/plugin"
 )
@@ -19,7 +20,7 @@ func (c *CreateAppCommand) Perform() {
 
 	if err != nil {
 		fmt.Println(err)
-		return
+		os.Exit(1)
 	}
 
 	fmt.Println(output[0])

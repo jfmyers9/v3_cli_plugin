@@ -1,0 +1,6 @@
+go install ./...
+mkdir -p builds/
+go build main/v3_cli.go
+mv v3_cli builds/v3_cli
+cf uninstall-plugin V3Cli
+cf install-plugin builds/v3_cli
