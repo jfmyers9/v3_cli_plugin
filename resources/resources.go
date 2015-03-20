@@ -9,3 +9,9 @@ type V3App struct {
 type V3AppResponse struct {
 	Resources []V3App `json:"resources"`
 }
+
+type Process struct {
+	Guid    string `json:"guid"`
+	Type    string `json:"type"`
+	Command string `json:"command"`
+}

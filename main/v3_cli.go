@@ -6,6 +6,7 @@ import (
 
 	"github.com/cloudfoundry/cli/plugin"
 	"github.com/jfmyers9/v3_cli_plugin/commands/apps"
+	"github.com/jfmyers9/v3_cli_plugin/commands/processes"
 )
 
 const (
@@ -14,6 +15,7 @@ const (
 	getAppString         = "v3-app"
 	listAppString        = "v3-apps"
 	uploadProcfileString = "procfile"
+	createProcessString  = "create-process"
 )
 
 type V3Cli struct{}
@@ -57,6 +59,13 @@ func (c *V3Cli) GetMetadata() plugin.PluginMetadata {
 					Usage: fmt.Sprintf("cf %s app-name path", uploadProcfileString),
 				},
 			},
+			{
+				Name:     createProcessString,
+				HelpText: "This command posts a procfile to create processes associated to the app.",
+				UsageDetails: plugin.Usage{
+					Usage: fmt.Sprintf("cf %s process-type", createProcessString),
+				},
+			},
 		},
 	}
 }
@@ -88,6 +97,9 @@ func (c *V3Cli) Run(cliConnection plugin.CliConnection, args []string) {
 		appName := args[1]
 		procfilePath := args[2]
 		c.uploadProcfile(cliConnection, appName, procfilePath)
+	} else if args[0] == createProcessString && len(args) == 2 {
+		processType := args[1]
+		c.createProcess(cliConnection, processType)
 	} else {
 		c.showUsage(args)
 	}
@@ -102,7 +114,7 @@ func (c *V3Cli) showUsage(args []string) {
 }
 
 func (c *V3Cli) createApp(cliConnection plugin.CliConnection, appName string) {
-	createCommand := commands.CreateAppCommand{
+	createCommand := apps.CreateAppCommand{
 		AppName:       appName,
 		CliConnection: cliConnection,
 	}
@@ -122,7 +134,7 @@ func (c *V3Cli) deleteApp(cliConnection plugin.CliConnection, forceFlag string, 
 		}
 	}
 
-	deleteCommand := commands.DeleteAppCommand{
+	deleteCommand := apps.DeleteAppCommand{
 		AppName:       appName,
 		CliConnection: cliConnection,
 	}
@@ -130,7 +142,7 @@ func (c *V3Cli) deleteApp(cliConnection plugin.CliConnection, forceFlag string, 
 }
 
 func (c *V3Cli) getApp(cliConnection plugin.CliConnection, appName string) {
-	getCommand := commands.GetAppCommand{
+	getCommand := apps.GetAppCommand{
 		AppName:       appName,
 		CliConnection: cliConnection,
 	}
@@ -138,17 +150,25 @@ func (c *V3Cli) getApp(cliConnection plugin.CliConnection, appName string) {
 }
 
 func (c *V3Cli) listApps(cliConnection plugin.CliConnection) {
-	listCommand := commands.ListAppsCommand{
+	listCommand := apps.ListAppsCommand{
 		CliConnection: cliConnection,
 	}
 	listCommand.Perform()
 }
 
 func (c *V3Cli) uploadProcfile(cliConnection plugin.CliConnection, appName string, procfilePath string) {
-	uploadCommand := commands.UploadProcfileCommand{
+	uploadCommand := apps.UploadProcfileCommand{
 		AppName:       appName,
 		ProcfilePath:  procfilePath,
 		CliConnection: cliConnection,
 	}
 	uploadCommand.Perform()
+}
+
+func (c *V3Cli) createProcess(cliConnection plugin.CliConnection, processType string) {
+	createCommand := processes.CreateProcessCommand{
+		ProcessType:   processType,
+		CliConnection: cliConnection,
+	}
+	createCommand.Perform()
 }
