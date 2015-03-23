@@ -15,3 +15,7 @@ type Process struct {
 	Type    string `json:"type"`
 	Command string `json:"command"`
 }
+
+type ProcessesResponse struct {
+	Resources []Process `json:"resources"`
+}

@@ -82,3 +82,34 @@ func (u *Utils) ListAppsScopedToSpace() ([]resources.V3App, error) {
 
 	return response.Resources, nil
 }
+
+func (u *Utils) ListProcessesScopedToApp(appGuid string) ([]resources.Process, error) {
+	processesPath := fmt.Sprintf("/v3/apps/%s/processes", appGuid)
+	output, err := u.CliConnection.CliCommandWithoutTerminalOutput("curl", processesPath)
+	if err != nil {
+		return []resources.Process{}, err
+	}
+
+	var response resources.ProcessesResponse
+	err = json.Unmarshal([]byte(output[0]), &response)
+	if err != nil {
+		return []resources.Process{}, err
+	}
+
+	return response.Resources, nil
+}
+
+func (u *Utils) GetProcessScopedToApp(appGuid string, processType string) (resources.Process, error) {
+	processes, err := u.ListProcessesScopedToApp(appGuid)
+	if err != nil {
+		return resources.Process{}, err
+	}
+
+	for _, process := range processes {
+		if process.Type == processType {
+			return process, nil
+		}
+	}
+
+	return resources.Process{}, errors.New("Process Not Found")
+}
