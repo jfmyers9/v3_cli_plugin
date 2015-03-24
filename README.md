@@ -10,6 +10,7 @@ This is a CF cli plugin to interract with the new v3 CloudController Api.
 
 ## Commands
 | command | usage | description|
+|:-----------------|:-------------------|:---------------------------------------------|
 | `create-v3-app`| `cf create-v3-app <app-name>`| Creates a V3 application in the targeted space.|
 | `delete-v3-app`| `cf delete-v3-app [-f] <app-name>`| Deletes a V3 application in the targeted space.|
 | `v3-app`| `cf v3-app <app-name>`| Retrieves a V3 application in the targeted space.|
