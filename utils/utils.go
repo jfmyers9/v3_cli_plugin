@@ -11,11 +11,15 @@ import (
 )
 
 type Utils struct {
-	CliConnection plugin.CliConnection
+	cliConnection plugin.CliConnection
+}
+
+func NewUtils(cliConnection plugin.CliConnection) Utils {
+	return Utils{cliConnection: cliConnection}
 }
 
 func (u *Utils) GetTargetSpaceGuid() (string, error) {
-	output, err := u.CliConnection.CliCommandWithoutTerminalOutput("target")
+	output, err := u.cliConnection.CliCommandWithoutTerminalOutput("target")
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +34,7 @@ func (u *Utils) GetTargetSpaceGuid() (string, error) {
 
 	spaceName := strings.TrimSpace(strings.TrimPrefix(output[4], "Space:"))
 
-	spaceGuid, err := u.CliConnection.CliCommandWithoutTerminalOutput("space", spaceName, "--guid")
+	spaceGuid, err := u.cliConnection.CliCommandWithoutTerminalOutput("space", spaceName, "--guid")
 	if err != nil {
 		return "", err
 	}
@@ -45,7 +49,7 @@ func (u *Utils) GetAppScopedToSpace(appName string) (resources.V3App, error) {
 	}
 
 	appPath := fmt.Sprintf("/v3/apps?names[]=%s&space_guids[]=%s", appName, spaceGuid)
-	output, err := u.CliConnection.CliCommandWithoutTerminalOutput("curl", appPath)
+	output, err := u.cliConnection.CliCommandWithoutTerminalOutput("curl", appPath)
 	if err != nil {
 		return resources.V3App{}, err
 	}
@@ -69,7 +73,7 @@ func (u *Utils) ListAppsScopedToSpace() ([]resources.V3App, error) {
 	}
 
 	appPath := fmt.Sprintf("/v3/apps?space_guids[]=%s", spaceGuid)
-	output, err := u.CliConnection.CliCommandWithoutTerminalOutput("curl", appPath)
+	output, err := u.cliConnection.CliCommandWithoutTerminalOutput("curl", appPath)
 	if err != nil {
 		return []resources.V3App{}, err
 	}
@@ -85,7 +89,7 @@ func (u *Utils) ListAppsScopedToSpace() ([]resources.V3App, error) {
 
 func (u *Utils) ListProcessesScopedToApp(appGuid string) ([]resources.Process, error) {
 	processesPath := fmt.Sprintf("/v3/apps/%s/processes", appGuid)
-	output, err := u.CliConnection.CliCommandWithoutTerminalOutput("curl", processesPath)
+	output, err := u.cliConnection.CliCommandWithoutTerminalOutput("curl", processesPath)
 	if err != nil {
 		return []resources.Process{}, err
 	}

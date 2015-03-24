@@ -10,11 +10,15 @@ import (
 )
 
 type ListAppsCommand struct {
-	CliConnection plugin.CliConnection
+	cliConnection plugin.CliConnection
+}
+
+func NewListAppsCommand(cliConnection plugin.CliConnection) ListAppsCommand {
+	return ListAppsCommand{cliConnection: cliConnection}
 }
 
 func (c *ListAppsCommand) Perform() {
-	util := utils.Utils{CliConnection: c.CliConnection}
+	util := utils.NewUtils(c.cliConnection)
 	apps, err := util.ListAppsScopedToSpace()
 	if err != nil {
 		fmt.Println(err)

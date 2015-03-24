@@ -9,20 +9,27 @@ import (
 )
 
 type DeleteAppCommand struct {
-	AppName       string
-	CliConnection plugin.CliConnection
+	appName       string
+	cliConnection plugin.CliConnection
+}
+
+func NewDeleteAppCommand(appName string, cliConnection plugin.CliConnection) DeleteAppCommand {
+	return DeleteAppCommand{
+		appName:       appName,
+		cliConnection: cliConnection,
+	}
 }
 
 func (c *DeleteAppCommand) Perform() {
-	util := utils.Utils{CliConnection: c.CliConnection}
-	app, err := util.GetAppScopedToSpace(c.AppName)
+	util := utils.NewUtils(c.cliConnection)
+	app, err := util.GetAppScopedToSpace(c.appName)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	deleteAppPath := fmt.Sprintf("/v3/apps/%s", app.Guid)
-	_, err = c.CliConnection.CliCommandWithoutTerminalOutput("curl", deleteAppPath, "-X", "DELETE")
+	_, err = c.cliConnection.CliCommandWithoutTerminalOutput("curl", deleteAppPath, "-X", "DELETE")
 
 	if err != nil {
 		fmt.Println(err)

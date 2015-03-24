@@ -9,20 +9,28 @@ import (
 )
 
 type RemoveProcessCommand struct {
-	AppName       string
-	ProcessType   string
-	CliConnection plugin.CliConnection
+	appName       string
+	processType   string
+	cliConnection plugin.CliConnection
+}
+
+func NewRemoveProcessCommand(appName, processType string, cliConnection plugin.CliConnection) RemoveProcessCommand {
+	return RemoveProcessCommand{
+		appName:       appName,
+		processType:   processType,
+		cliConnection: cliConnection,
+	}
 }
 
 func (c *RemoveProcessCommand) Perform() {
-	util := utils.Utils{CliConnection: c.CliConnection}
-	app, err := util.GetAppScopedToSpace(c.AppName)
+	util := utils.NewUtils(c.cliConnection)
+	app, err := util.GetAppScopedToSpace(c.appName)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	process, err := util.GetProcessScopedToApp(app.Guid, c.ProcessType)
+	process, err := util.GetProcessScopedToApp(app.Guid, c.processType)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -31,14 +39,14 @@ func (c *RemoveProcessCommand) Perform() {
 	removeProcessPath := fmt.Sprintf("/v3/apps/%s/processes", app.Guid)
 	removeProcessBody := fmt.Sprintf(`{"process_guid":"%s"}`, process.Guid)
 
-	_, err = c.CliConnection.CliCommandWithoutTerminalOutput("curl", removeProcessPath, "-X", "DELETE", "-d", removeProcessBody)
+	_, err = c.cliConnection.CliCommandWithoutTerminalOutput("curl", removeProcessPath, "-X", "DELETE", "-d", removeProcessBody)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	deleteProcessPath := fmt.Sprintf("/v3/processes/%s", process.Guid)
-	_, err = c.CliConnection.CliCommandWithoutTerminalOutput("curl", deleteProcessPath, "-X", "DELETE")
+	_, err = c.cliConnection.CliCommandWithoutTerminalOutput("curl", deleteProcessPath, "-X", "DELETE")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

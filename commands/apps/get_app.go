@@ -10,13 +10,20 @@ import (
 )
 
 type GetAppCommand struct {
-	AppName       string
-	CliConnection plugin.CliConnection
+	appName       string
+	cliConnection plugin.CliConnection
+}
+
+func NewGetAppCommand(appName string, cliConnection plugin.CliConnection) GetAppCommand {
+	return GetAppCommand{
+		appName:       appName,
+		cliConnection: cliConnection,
+	}
 }
 
 func (c *GetAppCommand) Perform() {
-	util := utils.Utils{CliConnection: c.CliConnection}
-	app, err := util.GetAppScopedToSpace(c.AppName)
+	util := utils.NewUtils(c.cliConnection)
+	app, err := util.GetAppScopedToSpace(c.appName)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

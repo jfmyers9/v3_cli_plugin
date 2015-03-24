@@ -12,12 +12,19 @@ import (
 )
 
 type CreateAppCommand struct {
-	AppName       string
-	CliConnection plugin.CliConnection
+	appName       string
+	cliConnection plugin.CliConnection
+}
+
+func NewCreateAppCommand(appName string, cliConnection plugin.CliConnection) CreateAppCommand {
+	return CreateAppCommand{
+		appName:       appName,
+		cliConnection: cliConnection,
+	}
 }
 
 func (c *CreateAppCommand) Perform() {
-	util := utils.Utils{CliConnection: c.CliConnection}
+	util := utils.NewUtils(c.cliConnection)
 	spaceGuid, err := util.GetTargetSpaceGuid()
 	if err != nil {
 		fmt.Println(err)
@@ -25,8 +32,8 @@ func (c *CreateAppCommand) Perform() {
 	}
 
 	createAppPath := "/v3/apps"
-	createAppBody := fmt.Sprintf(`{"name":"%s","space_guid":"%s"}`, c.AppName, spaceGuid)
-	output, err := c.CliConnection.CliCommandWithoutTerminalOutput("curl", createAppPath, "-X", "POST", "-d", createAppBody)
+	createAppBody := fmt.Sprintf(`{"name":"%s","space_guid":"%s"}`, c.appName, spaceGuid)
+	output, err := c.cliConnection.CliCommandWithoutTerminalOutput("curl", createAppPath, "-X", "POST", "-d", createAppBody)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
