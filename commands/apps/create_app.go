@@ -46,6 +46,6 @@ func (c *CreateAppCommand) Perform() {
 		os.Exit(1)
 	}
 
-	presenter := presenters.AppPresenter{App: app}
-	fmt.Println(presenter.PresentApp())
+	presenter := presenters.NewAppPresenter(app)
+	fmt.Println(presenter.Present())
 }

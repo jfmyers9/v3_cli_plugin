@@ -15,6 +15,7 @@ const (
 	listAppString        = "v3-apps"
 	uploadProcfileString = "procfile"
 	removeProcessString  = "remove-process"
+	listProcessesString  = "processes"
 )
 
 type V3Cli struct{}
@@ -65,6 +66,13 @@ func (c *V3Cli) GetMetadata() plugin.PluginMetadata {
 					Usage: fmt.Sprintf("cf %s app-name process-type", removeProcessString),
 				},
 			},
+			{
+				Name:     listProcessesString,
+				HelpText: "This command lists processes from an app.",
+				UsageDetails: plugin.Usage{
+					Usage: fmt.Sprintf("cf %s app-name", listProcessesString),
+				},
+			},
 		},
 	}
 }
@@ -100,6 +108,9 @@ func (c *V3Cli) Run(cliConnection plugin.CliConnection, args []string) {
 		appName := args[1]
 		processType := args[2]
 		c.removeProcess(cliConnection, appName, processType)
+	} else if args[0] == listProcessesString && len(args) == 2 {
+		appName := args[1]
+		c.listProcesses(cliConnection, appName)
 	} else {
 		c.showUsage(args)
 	}
@@ -153,4 +164,9 @@ func (c *V3Cli) uploadProcfile(cliConnection plugin.CliConnection, appName, proc
 func (c *V3Cli) removeProcess(cliConnection plugin.CliConnection, appName, processType string) {
 	removeCommand := apps.NewRemoveProcessCommand(appName, processType, cliConnection)
 	removeCommand.Perform()
+}
+
+func (c *V3Cli) listProcesses(cliConnection plugin.CliConnection, appName string) {
+	listCommand := apps.NewListAppProcessesCommand(appName, cliConnection)
+	listCommand.Perform()
 }

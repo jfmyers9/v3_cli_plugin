@@ -7,10 +7,14 @@ import (
 )
 
 type ProcessPresenter struct {
-	Process resources.Process
+	process resources.Process
+}
+
+func NewProcessPresenter(process resources.Process) ProcessPresenter {
+	return ProcessPresenter{process: process}
 }
 
 func (p *ProcessPresenter) Present() string {
 	processOutput := "Process Type: %s\nProcess Guid: %s\nCommand: %s"
-	return fmt.Sprintf(processOutput, p.Process.Type, p.Process.Guid, p.Process.Command)
+	return fmt.Sprintf(processOutput, p.process.Type, p.process.Guid, p.process.Command)
 }

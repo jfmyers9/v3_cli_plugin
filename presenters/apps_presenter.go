@@ -7,12 +7,16 @@ import (
 )
 
 type AppsPresenter struct {
-	Apps []resources.V3App
+	apps []resources.V3App
 }
 
-func (p *AppsPresenter) PresentApps() string {
+func NewAppsPresenter(apps []resources.V3App) AppsPresenter {
+	return AppsPresenter{apps: apps}
+}
+
+func (p *AppsPresenter) Present() string {
 	var listOutput string
-	for _, app := range p.Apps {
+	for _, app := range p.apps {
 		template := "App Name: %s\tGuid: %s\tState: %s\n"
 		listOutput += fmt.Sprintf(template, app.Name, app.Guid, app.DesiredState)
 	}

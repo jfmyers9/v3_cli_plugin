@@ -7,10 +7,14 @@ import (
 )
 
 type AppPresenter struct {
-	App resources.V3App
+	app resources.V3App
 }
 
-func (p *AppPresenter) PresentApp() string {
+func NewAppPresenter(app resources.V3App) AppPresenter {
+	return AppPresenter{app: app}
+}
+
+func (p *AppPresenter) Present() string {
 	appOutput := "App Name: %s\nApp Guid: %s\nApp State: %s"
-	return fmt.Sprintf(appOutput, p.App.Name, p.App.Guid, p.App.DesiredState)
+	return fmt.Sprintf(appOutput, p.app.Name, p.app.Guid, p.app.DesiredState)
 }

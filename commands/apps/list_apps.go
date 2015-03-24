@@ -25,6 +25,6 @@ func (c *ListAppsCommand) Perform() {
 		os.Exit(1)
 	}
 
-	presenter := presenters.AppsPresenter{Apps: apps}
-	fmt.Println(presenter.PresentApps())
+	presenter := presenters.NewAppsPresenter(apps)
+	fmt.Println(presenter.Present())
 }
